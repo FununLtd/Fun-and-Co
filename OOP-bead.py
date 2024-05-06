@@ -37,20 +37,20 @@ class Szalloda:
 
     def foglalas(self, szobaszam, datum, pin_kod):
         if not self.validate_date(datum):
-            return "\033[91mA megadott dátum érvénytelen vagy nem létezik.\033[0m"
+            return "\033[91m Valami nem jó a dátummal. \033[0m"
         if datetime.strptime(datum, '%Y-%m-%d') < datetime.now():
-            return "\033[91mA megadott dátum a múltban van.\033[0m"
+            return "\033[91m A megadott dátum a múltban van. \033[0m"
         if not any(sz.szobaszam == szobaszam for sz in self.szobak):
-            return "\033[91mNem létező szobaszám.\033[0m"
+            return "\033[91m Nincs ilyen szobánk:\ \033[0m"
         if not pin_kod.isdigit() or len(pin_kod) < 4:
-            return "\033[91mA PIN kód legalább 4 számjegyű kell legyen és csak számokat tartalmazhat.\033[0m"
+            return "\033[91m A PIN kód legalább 4 számjegyű legyen és csak számokat tartalmazhat. \033[0m"
         if datum in self.foglalasok and any(pin_kod == p[1] for p in self.foglalasok[datum].values()):
-            return "\033[91mEz a PIN kód már használatban van ezen a dátumon.\033[0m"
+            return "\033[91m Ez a PIN kód már foglalt. \033[0m"
         for szoba in self.szobak:
             if szoba.szobaszam == szobaszam:
                 self.foglalasok.setdefault(datum, {})[szobaszam] = (szoba, pin_kod)
-                return f"\033[92mFoglalás sikeres. Ár: {szoba.ar} Ft\033[0m"
-        return "\033[91mA megadott szobaszám nem létezik.\033[0m"
+                return f"\033[92m Sikeres foglalás!. Ár: {szoba.ar} Ft\033[0m"
+        return "\033[91m Nincs ilyen szobánk:\ \033[0m"
 
     def foglalas_lemondas(self, szobaszam, datum, pin_kod):
         if datum in self.foglalasok and szobaszam in self.foglalasok[datum] and \
@@ -58,12 +58,12 @@ class Szalloda:
             del self.foglalasok[datum][szobaszam]
             if not self.foglalasok[datum]:
                 del self.foglalasok[datum]
-            return "\033[92mFoglalás lemondva.\033[0m"
-        return "\033[91mNincs ilyen foglalás, vagy hibás PIN kód.\033[0m"
+            return "\033[92m Foglalás lemondva. \033[0m"
+        return "\033[91m Nincs ilyen foglalás, vagy hibás a PIN. \033[0m"
 
     def foglalasok_listaja(self):
         if not self.foglalasok:
-            return "Nincsenek foglalások."
+            return "Egy darab foglalásunk sincs jelenleg."
         result = []
         for szoba in self.szobak:
             foglalasok = [datum for datum, foglalas in self.foglalasok.items() if szoba.szobaszam in foglalas]
@@ -77,35 +77,35 @@ class Szalloda:
 
 def felhasznalo_interfesz(szalloda):
     while True:
-        print("\nElérhető szobák:")
+        print("\n Elérhető szobák:")
         print(szalloda.szobak_kilistazasa())
-        print("\nVálasszon egy opciót:\n1 - Foglalás\n2 - Foglalás lemondása\n3 - Foglalások listázása\n4 - Kilépés")
+        print("\n Válassz az alábbi opciók közül:\n 1 - Foglalás\n 2 - Foglalás lemondása\n 3 - Foglalások listázása\n 4 - Kilépés")
         valasztas = input("Opció: ")
         if valasztas == '1':
             szobaszam = int(input("Szobaszám: "))
             datum = input("Dátum (ÉÉÉÉ-HH-NN): ")
-            pin_kod = input("Adjon meg egy 4 számjegyű PIN kódot: ")
+            pin_kod = input("Adj meg egy legalább 4 számjegyű PIN kódot: ")
             print(szalloda.foglalas(szobaszam, datum, pin_kod))
         elif valasztas == '2':
             szobaszam = int(input("Szobaszám a lemondáshoz: "))
             datum = input("Dátum a lemondáshoz (ÉÉÉÉ-HH-NN): ")
-            pin_kod = input("Adja meg a foglaláshoz használt PIN kódot: ")
+            pin_kod = input("Add meg a foglaláshoz használt PIN kódot: ")
             print(szalloda.foglalas_lemondas(szobaszam, datum, pin_kod))
         elif valasztas == '3':
             print(szalloda.foglalasok_listaja())
         elif valasztas == '4':
-            print("Viszlát!")
+            print("Gyere máskor is!")
             break
         else:
-            print("\033[91mÉrvénytelen választás.\033[0m")
+            print("\033[91m Fogalmam sincs mit szeretnél, csak az elérhető opció számát írd be. \033[0m")
 
 # Szálloda és szobák inicializálása
 szalloda = Szalloda("The Moxxi's")
-szalloda.szoba_hozzaadas(EgyagyasSzoba(101, "Leánybúcsú lakosztály", 10000))
-szalloda.szoba_hozzaadas(KetagyasSzoba(102, "Legénybúcsú lakosztály", 15000))
-szalloda.szoba_hozzaadas(EgyagyasSzoba(103, "Ad-hoc romance", 9000))
-szalloda.szoba_hozzaadas(EgyagyasSzoba(104, "Forbidden love", 11000))
-szalloda.szoba_hozzaadas(EgyagyasSzoba(105, "Csak TV-znénk a gyerekek nélkül", 7000))
+szalloda.szoba_hozzaadas(EgyagyasSzoba(101, "Leánybúcsú lakosztály", 30000))
+szalloda.szoba_hozzaadas(KetagyasSzoba(102, "Legénybúcsú lakosztály", 45000))
+szalloda.szoba_hozzaadas(EgyagyasSzoba(103, "Ad-hoc romance", 16000))
+szalloda.szoba_hozzaadas(EgyagyasSzoba(104, "Forbidden love", 22000))
+szalloda.szoba_hozzaadas(EgyagyasSzoba(105, "Csak TV-znénk a gyerekek nélkül", 9000))
 szalloda.szoba_hozzaadas(TizenKetagyasSzoba(112, "Wall Street farkasa ceges buli", 4155000))
 
 # Kezdő foglalások
@@ -123,8 +123,8 @@ szalloda.foglalas(112, "2024-06-25", "6234")
 szalloda.foglalas(112, "2024-07-20", "6235")
 
 # Felhasználói interfész elindítása
-print (r"""\
-      {}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
+print("\033[31m" + r"""\
+      {}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
     {}                                                                                                    {}
     {}  HHHHHHHHH     HHHHHHHHH                          tttt                              lllllll        {}
     {}  H:::::::H     H:::::::H                       ttt:::t                              l:::::l        {}
@@ -160,5 +160,5 @@ print (r"""\
     {}  MMMMMMMM               MMMMMMMM   ooooooooooo   xxxxxxx      xxxxxxxxxxxxxx      xxxxxxxiiiiiiii  {}
     {}                                                                                                    {}
     {}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}{}
-""")
+""" + "\033[0m")
 felhasznalo_interfesz(szalloda)
