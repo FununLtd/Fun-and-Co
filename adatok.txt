@@ -3,5 +3,5 @@ Név: Hrivnák Péter
 NEPTUN: VQTIRY
 Szak: Gazdaságinformatikus szak (BSc)
 
-
+Kódleírás: README.md
 
